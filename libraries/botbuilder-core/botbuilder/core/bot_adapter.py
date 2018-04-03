@@ -14,19 +14,28 @@ class BotAdapter(ABC):
         self._middleware = MiddlewareSet()
 
     @abstractmethod
-    async def send_activity(self, activities: List[Activity]):
+    async def send_activities(self, context: BotContext, activities: List[Activity]):
         raise NotImplementedError()
 
     @abstractmethod
-    async def update_activity(self, activity: Activity):
+    async def update_activity(self, context: BotContext, activity: Activity):
         raise NotImplementedError()
 
     @abstractmethod
-    async def delete_activity(self, reference: ConversationReference):
+    async def delete_activity(self, context: BotContext, reference: ConversationReference):
         raise NotImplementedError()
 
     def use(self, middleware):
         self._middleware.use(middleware)
 
-    async def run_middleware(self, context: BotContext, callback: Callable=None):
-        return await self._middleware.receive_activity_with_status(context, callback)
+    async def run_pipeline(self, context: BotContext, callback: Callable=None):
+        if callable(callback):
+            if context.activity:
+                return await self._middleware.receive_activity_with_status(context, callback)
+
+    async def create_conversation(self, channel_id: str, callback: Callable[[BotContext, Callable], None]):
+        raise NotImplementedError()
+
+    async def continue_conversation(self, reference: ConversationReference,
+                                    callback: Callable[[BotContext, Callable], None]):
+        raise NotImplementedError()

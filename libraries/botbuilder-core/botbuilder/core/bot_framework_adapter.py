@@ -33,7 +33,7 @@ class BotFrameworkAdapter(BotAdapter):
         await self.authenticate_request(request, auth_header)
         context = self.create_context(request)
 
-        return await self.run_middleware(context, logic)
+        return await self.run_pipeline(context, logic)
 
     async def authenticate_request(self, request: Activity, auth_header: str):
         await JwtTokenValidation.assert_valid_activity(request, auth_header, self._credential_provider)
@@ -73,14 +73,14 @@ class BotFrameworkAdapter(BotAdapter):
                 except BaseException as e:
                     raise e
             else:
-                raise TypeError('BotFrameworkAdapter.parse_request(): received invalid request')
+                raise TypeError('BotFrameworkAdapter.parse_request(): received invalid activity')
         else:
             # The `req` has already been deserialized to an Activity, so verify the Activity.type and return it.
             is_valid_activity = await validate_activity(req)
             if is_valid_activity:
                 return req
 
-    async def update_activity(self, activity: Activity):
+    async def update_activity(self, context: BotContext, activity: Activity):
         try:
             connector_client = ConnectorClient(self._credentials, activity.service_url)
             return connector_client.conversations.update_activity(
@@ -90,7 +90,7 @@ class BotFrameworkAdapter(BotAdapter):
         except BaseException as e:
             raise e
 
-    async def delete_activity(self, conversation_reference: ConversationReference):
+    async def delete_activity(self, context: BotContext, conversation_reference: ConversationReference):
         try:
             connector_client = ConnectorClient(self._credentials, conversation_reference.service_url)
             connector_client.conversations.delete_activity(conversation_reference.conversation.id,
@@ -98,7 +98,7 @@ class BotFrameworkAdapter(BotAdapter):
         except BaseException as e:
             raise e
 
-    async def send_activity(self, activities: List[Activity]):
+    async def send_activities(self, context: BotContext, activities: List[Activity]):
         try:
             for activity in activities:
                 if activity.type == 'delay':

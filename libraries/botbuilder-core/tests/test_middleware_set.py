@@ -31,7 +31,7 @@ class TestMiddlewareSet:
     @pytest.mark.asyncio
     async def test_middleware_set_receive_activity_internal(self):
 
-        class PrintMiddleware(object):
+        class PrintMiddleware(Middleware):
             def __init__(self):
                 super(PrintMiddleware, self).__init__()
 

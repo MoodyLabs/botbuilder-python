@@ -14,7 +14,7 @@ from botbuilder.schema import Activity, ActivityTypes, ConversationReference, Re
 class BotContext(object):
     def __init__(self, adapter, request: Activity):
         self.adapter = adapter
-        self.request: Activity = request
+        self.activity: Activity = request
         self.responses: List[Activity] = []
         self._services: dict = {}
         self._responded: bool = False
@@ -22,8 +22,8 @@ class BotContext(object):
         self._on_update_activity: Callable[[]] = []
         self._on_delete_activity: Callable[[]] = []
 
-        if not self.request:
-            raise TypeError('BotContext must be instantiated with a request parameter of type Activity.')
+        if not self.activity:
+            raise TypeError('BotContext must be instantiated with a activity parameter of type Activity.')
 
     def get(self, key: str) -> object:
         if not key or not isinstance(key, str):
@@ -56,13 +56,13 @@ class BotContext(object):
         self._services[key] = value
 
     async def send_activity(self, *activity_or_text: Tuple[Activity, str]):
-        reference = BotContext.get_conversation_reference(self.request)
+        reference = BotContext.get_conversation_reference(self.activity)
         output = [BotContext.apply_conversation_reference(
             Activity(text=a, type='message') if isinstance(a, str) else a, reference)
             for a in activity_or_text]
 
         async def callback(context: 'BotContext', output):
-            responses = await context.adapter.send_activity(output)
+            responses = await context.adapter.send_activities(context, output)
             context._responded = True
             return responses
 
@@ -93,7 +93,7 @@ class BotContext(object):
         bject and then later used to message the user proactively.
 
         Usage Example:
-        reference = BotContext.get_conversation_reference(context.request)
+        reference = BotContext.get_conversation_reference(context.activity)
         :param activity:
         :return:
         """
