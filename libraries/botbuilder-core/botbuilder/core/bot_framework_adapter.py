@@ -26,30 +26,35 @@ class BotFrameworkAdapter(BotAdapter):
         self._credentials = MicrosoftAppCredentials(self.settings.app_id, self.settings.app_password)
         self._credential_provider = SimpleCredentialProvider(self.settings.app_id, self.settings.app_password)
 
-    async def process_request(self, req, auth_header: str, logic: Callable):
-        request = await self.parse_request(req)
+    async def process_activity(self, req, auth_header: str, logic: Callable):
+        request = self.parse_request(req)
         auth_header = auth_header or ''
 
-        await self.authenticate_request(request, auth_header)
-        context = self.create_context(request)
+        claims_identity = await JwtTokenValidation.authenticate_request(request,
+                                                                        auth_header,
+                                                                        self._credential_provider)
 
+        context = BotContext(self, request)
+        # context.services.add("bot_identity", claims_identity)
+        # connector_client = await self.create_connector_client_async(activity.service_url, claims_identity)
+        # context.services.add("connector_client", connector_client)
         return await self.run_pipeline(context, logic)
 
     async def authenticate_request(self, request: Activity, auth_header: str):
-        await JwtTokenValidation.assert_valid_activity(request, auth_header, self._credential_provider)
+        await JwtTokenValidation.authenticate_request(request, auth_header, self._credential_provider)
 
     def create_context(self, activity):
         return BotContext(self, activity)
 
     @staticmethod
-    async def parse_request(req):
+    def parse_request(req):  # Why on earth is this asynchronous?
         """
         Parses and validates request
         :param req:
         :return:
         """
 
-        async def validate_activity(activity: Activity):
+        def validate_activity(activity: Activity):
             if not isinstance(activity.type, str):
                 raise TypeError('BotFrameworkAdapter.parse_request(): invalid or missing activity type.')
             return True
@@ -59,7 +64,7 @@ class BotFrameworkAdapter(BotAdapter):
             if hasattr(req, 'body'):
                 try:
                     activity = Activity().deserialize(req.body)
-                    is_valid_activity = await validate_activity(activity)
+                    is_valid_activity = validate_activity(activity)
                     if is_valid_activity:
                         return activity
                 except BaseException as e:
@@ -67,7 +72,7 @@ class BotFrameworkAdapter(BotAdapter):
             elif 'body' in req:
                 try:
                     activity = Activity().deserialize(req['body'])
-                    is_valid_activity = await validate_activity(activity)
+                    is_valid_activity = validate_activity(activity)
                     if is_valid_activity:
                         return activity
                 except BaseException as e:
@@ -76,7 +81,7 @@ class BotFrameworkAdapter(BotAdapter):
                 raise TypeError('BotFrameworkAdapter.parse_request(): received invalid activity')
         else:
             # The `req` has already been deserialized to an Activity, so verify the Activity.type and return it.
-            is_valid_activity = await validate_activity(req)
+            is_valid_activity = validate_activity(req)
             if is_valid_activity:
                 return req
 
@@ -124,7 +129,7 @@ class BotFrameworkAdapter(BotAdapter):
 
     async def receive(self, auth_header: str, activity: Activity):
         try:
-            await JwtTokenValidation.assert_valid_activity(activity, auth_header, self._credential_provider)
+            await JwtTokenValidation.authenticate_request(activity, auth_header, self._credential_provider)
         except BaseException as e:
             raise e
         else:

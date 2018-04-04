@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+
 class VerifyOptions:
     def __init__(self, issuer, audience, clock_tolerance, ignore_expiration):
         self.issuer = issuer

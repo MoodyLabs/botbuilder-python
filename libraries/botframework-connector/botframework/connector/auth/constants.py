@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+
 class Constants: # pylint: disable=too-few-public-methods
     TO_BOT_FROM_CHANNEL_TOKEN_ISSUER = "https://api.botframework.com"
 

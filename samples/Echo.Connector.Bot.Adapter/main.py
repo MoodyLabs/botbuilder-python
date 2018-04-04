@@ -54,7 +54,7 @@ async def messages(req: web.web_request) -> web.Response:
     activity = Activity().deserialize(body)
     auth_header = req.headers['Authorization'] if 'Authorization' in req.headers else ''
     try:
-        return await ADAPTER.process_request(activity, auth_header, request_handler)
+        return await ADAPTER.process_activity(activity, auth_header, request_handler)
     except BaseException as e:
         raise e
 
