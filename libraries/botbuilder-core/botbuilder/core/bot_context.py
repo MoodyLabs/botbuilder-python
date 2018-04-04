@@ -12,18 +12,20 @@ from botbuilder.schema import Activity, ActivityTypes, ConversationReference, Re
 
 
 class BotContext(object):
-    def __init__(self, adapter, request: Activity):
+    def __init__(self, adapter, activity: Activity):
+        if not activity:
+            raise TypeError('BotContext must be instantiated with a activity parameter of type Activity.')
+        if not adapter:
+            raise TypeError('BotContext must be instantiated with an adapter.')
+
         self.adapter = adapter
-        self.activity: Activity = request
+        self.activity: Activity = activity
         self.responses: List[Activity] = []
         self._services: dict = {}
         self._responded: bool = False
         self._on_send_activity: Callable[[]] = []
         self._on_update_activity: Callable[[]] = []
         self._on_delete_activity: Callable[[]] = []
-
-        if not self.activity:
-            raise TypeError('BotContext must be instantiated with a activity parameter of type Activity.')
 
     def get(self, key: str) -> object:
         if not key or not isinstance(key, str):
