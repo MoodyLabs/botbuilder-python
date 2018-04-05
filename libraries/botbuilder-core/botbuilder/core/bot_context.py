@@ -8,6 +8,7 @@ from uuid import uuid4
 from typing import List, Callable, Iterable, Tuple
 from botbuilder.schema import Activity, ActivityTypes, ConversationReference, ResourceResponse
 
+from .bot_context_service_collection import BotContextServiceCollection
 # from .bot_adapter import BotAdapter
 
 
@@ -21,41 +22,11 @@ class BotContext(object):
         self.adapter = adapter
         self.activity: Activity = activity
         self.responses: List[Activity] = []
-        self._services: dict = {}
+        self._services: BotContextServiceCollection = BotContextServiceCollection()
         self._responded: bool = False
         self._on_send_activity: Callable[[]] = []
         self._on_update_activity: Callable[[]] = []
         self._on_delete_activity: Callable[[]] = []
-
-    def get(self, key: str) -> object:
-        if not key or not isinstance(key, str):
-            raise TypeError('"key" must be a valid string.')
-        try:
-            return self._services[key]
-        except KeyError:
-            raise KeyError('%s not found in BotContext._services.' % key)
-
-    def has(self, key: str) -> bool:
-        """
-        Returns True is set() has been called for a key. The cached value may be of type 'None'.
-        :param key:
-        :return:
-        """
-        if key in self._services:
-            return True
-        return False
-
-    def set(self, key: str, value: object) -> None:
-        """
-        Caches a value for the lifetime of the current turn.
-        :param key:
-        :param value:
-        :return:
-        """
-        if not key or not isinstance(key, str):
-            raise KeyError('"key" must be a valid string.')
-
-        self._services[key] = value
 
     async def send_activity(self, *activity_or_text: Tuple[Activity, str]):
         reference = BotContext.get_conversation_reference(self.activity)

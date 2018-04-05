@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
+from typing import Callable
 from botbuilder.core import BotContextServiceCollection
 
 
@@ -55,3 +56,38 @@ class TestBotContextServiceCollection:
             pass
         else:
             raise AssertionError('Should not have successfully retrieved service for missing key.')
+
+    def test_adding_a_duplicate_key_should_fail(self):
+        services = BotContextServiceCollection()
+        services.add('key', lambda x: x * 1)
+
+        try:
+            services.add('key', lambda x: x * 2)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError('Should not have added duplicate key.')
+
+    def test_get_services_should_return_dict_with_two_services(self):
+        services = BotContextServiceCollection()
+        services.add('key', lambda x: x * 1)
+        services.add('key_2', lambda x: x)
+
+        callable_services = services.get_services(Callable)
+        number_of_services = 0
+        for key in callable_services:
+            number_of_services += 1
+
+        assert number_of_services == 2
+
+    def test_get_services_should_return_dict_with_no_services(self):
+        services = BotContextServiceCollection()
+        services.add('key', lambda x: x * 1)
+        services.add('key_2', lambda x: x)
+
+        callable_services = services.get_services(int)
+        number_of_services = 0
+        for key in callable_services:
+            number_of_services += 1
+
+        assert number_of_services == 0
