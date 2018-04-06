@@ -9,6 +9,7 @@ from .jwt_token_extractor import JwtTokenExtractor
 from .claims_identity import ClaimsIdentity
 from .credential_provider import CredentialProvider
 
+
 class ChannelValidation:
     # This claim is ONLY used in the Channel Validation, and not in the emulator validation
     SERVICE_URL_CLAIM = 'serviceurl'
@@ -94,7 +95,7 @@ class ChannelValidation:
         # The AppId from the claim in the token must match the AppId specified by the developer.
         # Note that the Bot Framework uses the Audience claim ("aud") to pass the AppID.
         aud_claim = identity.get_claim_value(Constants.AUDIENCE_CLAIM)
-        is_valid_app_id = await asyncio.ensure_future(credentials.is_valid_appid(aud_claim or ""))
+        is_valid_app_id = await asyncio.ensure_future(credentials.is_valid_app_id(aud_claim or ""))
         if not is_valid_app_id:
             # The AppId is not valid or not present. Not Authorized.
             raise Exception('Unauthorized. Invalid AppId passed on token: ', aud_claim)

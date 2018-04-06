@@ -1,16 +1,17 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
+
 class CredentialProvider:
     """CredentialProvider.
-    This class allows Bots to provide their own implemention
+    This class allows Bots to provide their own implementation
     of what is, and what is not, a valid appId and password.
     This is useful in the case of multi-tenant bots, where the bot
     may need to call out to a service to determine if a particular
     appid/password pair is valid.
     """
 
-    async def is_valid_appid(self, app_id: str) -> bool:
+    async def is_valid_app_id(self, app_id: str) -> bool:
         """Validate AppId.
 
         This method is async to enable custom implementations
@@ -43,12 +44,13 @@ class CredentialProvider:
         """
         raise NotImplementedError
 
+
 class SimpleCredentialProvider(CredentialProvider):
     def __init__(self, app_id: str, password: str):
         self.app_id = app_id
         self.password = password
 
-    async def is_valid_appid(self, app_id: str) -> bool:
+    async def is_valid_app_id(self, app_id: str) -> bool:
         return self.app_id == app_id
 
     async def get_app_password(self, app_id: str) -> str:

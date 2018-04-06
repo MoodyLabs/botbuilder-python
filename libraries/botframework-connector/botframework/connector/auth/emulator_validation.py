@@ -10,6 +10,7 @@ from .constants import Constants
 from .credential_provider import CredentialProvider
 from .claims_identity import ClaimsIdentity
 
+
 class EmulatorValidation:
     APP_ID_CLAIM = "appid"
     VERSION_CLAIM = "ver"
@@ -148,7 +149,7 @@ class EmulatorValidation:
             # Unknown Version. Not Authorized.
             raise Exception('Unauthorized. Unknown Emulator Token version ', version_claim, '.')
 
-        is_valid_app_id = await asyncio.ensure_future(credentials.is_valid_appid(app_id))
+        is_valid_app_id = await asyncio.ensure_future(credentials.is_valid_app_id(app_id))
         if not is_valid_app_id:
             raise Exception('Unauthorized. Invalid AppId passed on token: ', app_id)
 

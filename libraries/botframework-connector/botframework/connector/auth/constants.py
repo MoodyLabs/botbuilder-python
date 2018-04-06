@@ -1,7 +1,8 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-class Constants: # pylint: disable=too-few-public-methods
+
+class Constants:  # pylint: disable=too-few-public-methods
     TO_BOT_FROM_CHANNEL_TOKEN_ISSUER = "https://api.botframework.com"
 
     TO_BOT_FROM_EMULATOR_OPEN_ID_METADATA_URL = (
@@ -14,3 +15,4 @@ class Constants: # pylint: disable=too-few-public-methods
     AUTHORIZED_PARTY = "azp"
     AUDIENCE_CLAIM = "aud"
     ISSUER_CLAIM = "iss"
+    APP_ID_CLAIM = "appid"

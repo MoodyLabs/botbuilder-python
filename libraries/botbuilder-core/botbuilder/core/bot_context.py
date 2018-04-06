@@ -22,7 +22,7 @@ class BotContext(object):
         self.adapter = adapter
         self.activity: Activity = activity
         self.responses: List[Activity] = []
-        self._services: BotContextServiceCollection = BotContextServiceCollection()
+        self.services: BotContextServiceCollection = BotContextServiceCollection()
         self._responded: bool = False
         self._on_send_activity: Callable[[]] = []
         self._on_update_activity: Callable[[]] = []
