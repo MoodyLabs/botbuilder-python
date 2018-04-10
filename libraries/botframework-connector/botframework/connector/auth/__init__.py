@@ -17,3 +17,4 @@ from .channel_validation import *
 from .emulator_validation import *
 from .jwt_token_extractor import *
 from .constants import *
+from .claims_identity import *
